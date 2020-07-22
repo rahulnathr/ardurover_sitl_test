@@ -22,13 +22,16 @@ class View(tk.Tk):
         self.createRightFrame()
         self.createCanvas()
         self.createButton1Layer()
+        self.createButton2Layer()
         self.createMission1()
+        self.createMission2()
+
     def createLeftFrame(self):
         self.s.configure('Frame2.TFrame',background='light gray')
         self.leftframe = ttk.LabelFrame(self.content, text='Controls',style='Frame2.TFrame')
         self.leftframe.grid(column=0,row=0,sticky=(tk.N,tk.S,tk.E,tk.W))
-        self.leftframe.rowconfigure(0,weight=1)
-        self.leftframe.rowconfigure(1,weight=1)
+        # self.leftframe.rowconfigure(0,weight=1)
+        # self.leftframe.rowconfigure(1,weight=1)
 
 
 
@@ -43,11 +46,11 @@ class View(tk.Tk):
 
     def createButton1Layer(self):
         self.button_one_layer = tk.Frame(self.leftframe,bg = 'gray')
-        self.button_one_layer.grid(row=0,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.button_one_layer.grid(row=0,column=0,sticky=(tk.N, tk.S, tk.E, tk.W),padx=5,pady=5)
 
     def createButton2Layer(self):
         self.button_two_layer = tk.Frame(self.leftframe, bg='white')
-        self.button_two_layer.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.button_two_layer.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W),padx=5,pady=5)
 
     def createMission1(self):
         self.labelx = tk.Label(self.button_one_layer,text='X')
@@ -59,12 +62,13 @@ class View(tk.Tk):
         self.labelsenty = tk.Label(self.button_one_layer, text='Sent Y')
         self.labelsenty.grid(row=0, column=4, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.entryx = tk.Entry(self.button_one_layer)
-        self.entryx.grid(row=1,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.entryy = tk.Entry(self.button_one_layer)
-        self.entryy.grid(row=1, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+        """Entry for X coordinate and Y coordinate of mIssion 1"""
+        self.entry1x = tk.Entry(self.button_one_layer)
+        self.entry1x.grid(row=1,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.entry2y = tk.Entry(self.button_one_layer)
+        self.entry2y.grid(row=1, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.sentbtn = tk.Button(self.button_one_layer,text="Send Values")
+        self.sentbtn = tk.Button(self.button_one_layer,text="Send Values",command = self.controller.sent_coords2)
         self.sentbtn.grid(row=1,column=2,sticky=(tk.N, tk.S, tk.E, tk.W))
 
         self.labelgotx = tk.Label(self.button_one_layer, text='Got X')
@@ -74,8 +78,47 @@ class View(tk.Tk):
         self.go_button = tk.Button(self.button_one_layer,text="Start Mission")
         self.go_button.grid(row=2,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
 
+        self.labelStatus = tk.Label(self.button_one_layer, text='Status')
+        self.labelStatus.grid(row=2, column=2, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelrealStatus = tk.Label(self.button_one_layer, text='None')
+        self.labelrealStatus.grid(row=2, column=3,columnspan=2, sticky=(tk.N, tk.S, tk.E, tk.W))
+
         self.progress_bar = ttk.Progressbar(self.button_one_layer,mode='determinate',orient=tk.HORIZONTAL)
-        self.progress_bar.grid(row =2,column=1,columnspan=4,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.progress_bar.grid(row =2,column=1,columnspan=1,sticky=(tk.N, tk.S, tk.E, tk.W))
+
+    def createMission2(self):
+        self.labelx = tk.Label(self.button_two_layer,text='X')
+        self.labelx.grid(row=0,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labely = tk.Label(self.button_two_layer,text='Y')
+        self.labely.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelsentx = tk.Label(self.button_two_layer, text='Sent X')
+        self.labelsentx.grid(row=0, column=3, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelsenty = tk.Label(self.button_two_layer, text='Sent Y')
+        self.labelsenty.grid(row=0, column=4, sticky=(tk.N, tk.S, tk.E, tk.W))
+
+        """Entry for the X and Y in Mission2 """
+        self.entry11x = tk.Entry(self.button_two_layer)
+        self.entry11x.grid(row=1,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.entry22y = tk.Entry(self.button_two_layer)
+        self.entry22y.grid(row=1, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+
+        self.sentbtn = tk.Button(self.button_two_layer,text="Send Values",command =self.controller.sent_coords2)
+        self.sentbtn.grid(row=1,column=2,sticky=(tk.N, tk.S, tk.E, tk.W))
+
+        self.labelgotx = tk.Label(self.button_two_layer, text='Got X')
+        self.labelgotx.grid(row=1, column=3, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelgoty = tk.Label(self.button_two_layer, text='Got Y')
+        self.labelgoty.grid(row=1, column=4, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.go_button = tk.Button(self.button_two_layer,text="Start Mission")
+        self.go_button.grid(row=2,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+
+        self.labelStatus = tk.Label(self.button_two_layer, text='Status')
+        self.labelStatus.grid(row=2, column=2, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelrealStatus = tk.Label(self.button_two_layer, text='None')
+        self.labelrealStatus.grid(row=2, column=3, columnspan=2, sticky=(tk.N, tk.S, tk.E, tk.W))
+
+        self.progress_bar = ttk.Progressbar(self.button_two_layer,mode='determinate',orient=tk.HORIZONTAL)
+        self.progress_bar.grid(row =2,column=1,columnspan=1,sticky=(tk.N, tk.S, tk.E, tk.W))
 
 
     def main(self):
