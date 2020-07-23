@@ -1,10 +1,12 @@
-import tkinter as tk
-from tkinter import ttk
+#!/usr/bin/env python
+
+import Tkinter as tk
+import ttk as ttk
 
 class View(tk.Tk):
     """The GUI View of the application"""
     def __init__(self,controller):
-        super().__init__()
+        tk.Tk.__init__(self)
         self.controller = controller
         self.wm_resizable(0,0)
 
@@ -41,7 +43,7 @@ class View(tk.Tk):
         self.rightframe.grid(column=1, row=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
     def createCanvas(self):
-        self.canvas_plot = tk.Canvas(self.rightframe,bg='white',height=500,width =350)
+        self.canvas_plot = tk.Canvas(self.rightframe,bg='white',height=500,width =400)
         self.canvas_plot.grid(row=0,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
 
     def createButton1Layer(self):
@@ -58,33 +60,28 @@ class View(tk.Tk):
         self.labely = tk.Label(self.button_one_layer,text='Y')
         self.labely.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
         self.labelsentx = tk.Label(self.button_one_layer, text='Sent X')
-        self.labelsentx.grid(row=0, column=3, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelsentx.grid(row=3, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
         self.labelsenty = tk.Label(self.button_one_layer, text='Sent Y')
-        self.labelsenty.grid(row=0, column=4, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelsenty.grid(row=3, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         """Entry for X coordinate and Y coordinate of mIssion 1"""
         self.entry1x = tk.Entry(self.button_one_layer)
         self.entry1x.grid(row=1,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.entry2y = tk.Entry(self.button_one_layer)
-        self.entry2y.grid(row=1, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.entry1y = tk.Entry(self.button_one_layer)
+        self.entry1y.grid(row=1, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.sentbtn = tk.Button(self.button_one_layer,text="Send Values",command = self.controller.sent_coords2)
-        self.sentbtn.grid(row=1,column=2,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.sentbtn = tk.Button(self.button_one_layer,text="Send Values",command = self.controller.sent_coordinates_one)
+        self.sentbtn.grid(row=2,column=0,columnspan=2,sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.labelgotx = tk.Label(self.button_one_layer, text='Got X')
-        self.labelgotx.grid(row=1, column=3, sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.labelgoty = tk.Label(self.button_one_layer, text='Got Y')
-        self.labelgoty.grid(row=1, column=4, sticky=(tk.N, tk.S, tk.E, tk.W))
         self.go_button = tk.Button(self.button_one_layer,text="Start Mission")
-        self.go_button.grid(row=2,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.go_button.grid(row=4,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
 
         self.labelStatus = tk.Label(self.button_one_layer, text='Status')
-        self.labelStatus.grid(row=2, column=2, sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.labelrealStatus = tk.Label(self.button_one_layer, text='None')
-        self.labelrealStatus.grid(row=2, column=3,columnspan=2, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelStatus.grid(row=4, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+        
 
         self.progress_bar = ttk.Progressbar(self.button_one_layer,mode='determinate',orient=tk.HORIZONTAL)
-        self.progress_bar.grid(row =2,column=1,columnspan=1,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.progress_bar.grid(row =5,column=0,columnspan=2,sticky=(tk.N, tk.S, tk.E, tk.W))
 
     def createMission2(self):
         self.labelx = tk.Label(self.button_two_layer,text='X')
@@ -92,34 +89,29 @@ class View(tk.Tk):
         self.labely = tk.Label(self.button_two_layer,text='Y')
         self.labely.grid(row=0, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
         self.labelsentx = tk.Label(self.button_two_layer, text='Sent X')
-        self.labelsentx.grid(row=0, column=3, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelsentx.grid(row=3, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
         self.labelsenty = tk.Label(self.button_two_layer, text='Sent Y')
-        self.labelsenty.grid(row=0, column=4, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelsenty.grid(row=3, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        """Entry for the X and Y in Mission2 """
-        self.entry11x = tk.Entry(self.button_two_layer)
-        self.entry11x.grid(row=1,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.entry22y = tk.Entry(self.button_two_layer)
-        self.entry22y.grid(row=1, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+        """Entry for X coordinate and Y coordinate of mIssion 1"""
+        self.entry2x = tk.Entry(self.button_two_layer)
+        self.entry2x.grid(row=1,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.entry2y = tk.Entry(self.button_two_layer)
+        self.entry2y.grid(row=1, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.sentbtn = tk.Button(self.button_two_layer,text="Send Values",command =self.controller.sent_coords2)
-        self.sentbtn.grid(row=1,column=2,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.sentbtn = tk.Button(self.button_two_layer,text="Send Values",command = self.controller.sent_coordinates_two)
+        self.sentbtn.grid(row=2,column=0,columnspan=2,sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.labelgotx = tk.Label(self.button_two_layer, text='Got X')
-        self.labelgotx.grid(row=1, column=3, sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.labelgoty = tk.Label(self.button_two_layer, text='Got Y')
-        self.labelgoty.grid(row=1, column=4, sticky=(tk.N, tk.S, tk.E, tk.W))
         self.go_button = tk.Button(self.button_two_layer,text="Start Mission")
-        self.go_button.grid(row=2,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.go_button.grid(row=4,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
 
         self.labelStatus = tk.Label(self.button_two_layer, text='Status')
-        self.labelStatus.grid(row=2, column=2, sticky=(tk.N, tk.S, tk.E, tk.W))
-        self.labelrealStatus = tk.Label(self.button_two_layer, text='None')
-        self.labelrealStatus.grid(row=2, column=3, columnspan=2, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.labelStatus.grid(row=4, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
+        
 
         self.progress_bar = ttk.Progressbar(self.button_two_layer,mode='determinate',orient=tk.HORIZONTAL)
-        self.progress_bar.grid(row =2,column=1,columnspan=1,sticky=(tk.N, tk.S, tk.E, tk.W))
-
+        self.progress_bar.grid(row =5,column=0,columnspan=2,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.progress_bar['value'] =50
 
     def main(self):
         self.mainloop()
