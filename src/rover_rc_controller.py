@@ -4,11 +4,12 @@ from rover_model import Model
 from rover_model import LocationMavros
 import Tkinter as tk
 import rospy 
+
 class Controller(object):
     def __init__(self):
         self.view = View(self)
         self.model = Model()
-        self.location = LocationMavros()
+        self.location = LocationMavros(self)
         self.x1 = 0
         self.y1 = 0
 
@@ -48,6 +49,11 @@ class Controller(object):
         self.model.missiony2 = self.model.originy + self.model.y
 
 
+    def plotter_function(self,x,y):
+        new_x =self.model.originx+x
+        new_y = self.model.originy+y
+        coords = [new_x,new_y,new_x+5,new_y+5]
+        self.view.canvas_plot.create_rectangle(coords,fill='red')
 
 if __name__ == "__main__":
     rospy.init_node("location_node")
