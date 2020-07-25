@@ -6,7 +6,7 @@ from std_msgs.msg import Float64
 from geometry_msgs.msg import PoseStamped
 import math 
 from mavros_msgs.msg import OverrideRCIn
-
+import time
 class Model(object):
     def __init__(self):
         
@@ -24,29 +24,36 @@ class LocationMavros(object):
         self.locationSubscriber = rospy.Subscriber("/mavros/global_position/local",Odometry,self.print_location)
         #format is (topic name,topic type,callback)
         # self.filteredOdomSubscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.state)
-        # self.filteredOdomSubscriber=rospy.Subscriber("/mavros/global_position/compass_hdg",Float64,self.state)
-        self.filteredRelativeHeight=rospy.Subscriber("/mavros/global_position/rel_alt",Float64,self.state)
+        self.filteredOdomSubscriber=rospy.Subscriber("/mavros/global_position/compass_hdg",Float64,self.state)
+        self.PID_CONTROL = PID(8.2,0.7,0.5)
+        # self.filteredRelativeHeight=rospy.Subscriber("/mavros/global_position/rel_alt",Float64,self.state)
         self.controller = controller
-        self.setpointPublisher = rospy.Publisher("/setpoint",Float64,queue_size=10)
-        self.statepublisher = rospy.Publisher("/state",Float64,queue_size=10)
+        # self.setpointPublisher = rospy.Publisher("/setpoint",Float64,queue_size=10)
+        # self.statepublisher = rospy.Publisher("/state",Float64,queue_size=10)
         self.RCPublisher = rospy.Publisher("/mavros/rc/override",OverrideRCIn,queue_size=10)
-        self.controlSignalSubscriber=rospy.Subscriber("/control_effort",Float64,self.controlaction)
+        # self.controlSignalSubscriber=rospy.Subscriber("/control_effort",Float64,self.controlaction)
         self.rc_msg = OverrideRCIn()
         self.rc_msg.channels =[0,0,0,0,0,0,0,0]
+        self.PID_CONTROL.setPoint = 10.0
+        
 
 
-    def controlaction(self,msg):
-        control_sig = msg.data 
-        rospy.loginfo("Control Signal %f",control_sig)
-        # self.rc_msg.channels[2]=1600
-        self.rc_msg.channels[2]=control_sig
-        self.RCPublisher.publish(self.rc_msg)
+
+    # def controlaction(self,msg):
+    #     control_sig = msg.data 
+    #     rospy.loginfo("Control Signal %f",control_sig)
+    #     # self.rc_msg.channels[2]=1600
+    #     self.rc_msg.channels[2]=int(control_sig)
+    #     self.RCPublisher.publish(self.rc_msg)
 
 
     def state(self,msg):
-        altitude = msg.data 
-        rospy.loginfo("The altitude value is %f",altitude)
-        self.statepublisher.publish(altitude)
+        compass = msg.data 
+        rospy.loginfo("The compass value is %f",compass)
+        self.PID_CONTROL.update(compass,None)
+        self.rc_msg.channels[2]=1600
+        self.rc_msg.channels[0]=self.PID_CONTROL.output
+        self.RCPublisher.publish(self.rc_msg)
 
     # def state(self,msg):
     #     # required_x = 74.63
@@ -77,6 +84,64 @@ class LocationMavros(object):
         # rospy.loginfo("X value %f",x_round)
         # rospy.loginfo("Y value %f",y_round)
         self.controller.plotter_function(x_round,y_round)
-        setpoint_required = 5.0
-        self.setpointPublisher.publish(setpoint_required)
+        # setpoint_required = 5.0
+        # self.setpointPublisher.publish(setpoint_required)
+
+
+class PID(object):
+    "A PID Control"
+    def __init__(self,P =0.5,I=0.0,D=0.0,current_time=None):
+        self.Kp = P
+        self.Ki = I
+        self.Kd = D
+        self.sample_time = 0.1
+        self.current_time = current_time if current_time is not None else time.time()
+        self.last_time = self.current_time
+        self.dead_band = 1500
+        self.clear()
+
+    def clear(self):
+        "Clears computations and coefficients"
+        self.setPoint = 0.0
+        self.PTerm = 0.0
+        self.ITerm = 0.0
+        self.DTerm = 0.0
+        self.last_error = 0.0
+
+        #windup Guard
+        self.int_error = 0.0
+        self.windup_guard = 400
+        self.output = 0 #for the controller dead region
     
+    def update(self,feedback_value,current_time=None):
+        "The PID update computation"
+        self.setPoint = 50.0
+        error = feedback_value - self.setPoint
+        self.current_time = current_time if current_time is not None else time.time()
+        self.int_error = self.int_error+error
+        delta_time = self.current_time-self.last_time
+        delta_error = error - self.last_error
+        if (delta_time >=self.sample_time):
+            self.PTerm = self.Kp * error
+            self.ITerm = self.int_error *delta_time
+            if (self.ITerm < -400):
+                self.ITerm = -400
+            elif (self.ITerm > self.windup_guard):
+                self.ITerm = self.windup_guard
+            
+
+        if (delta_time>0):
+            self.DTerm = delta_error / delta_time
+        self.last_time = self.current_time
+        self.last_error = error
+        self.output = int(self.PTerm+(self.Ki*self.ITerm)+(self.Kd*self.DTerm))
+        if self.output <-400:
+            self.output = -400
+        
+        elif self.output>400:
+            self.output = 400
+        else:
+            self.output = self.output
+        self.output = self.dead_band + self.output
+        rospy.loginfo("Output of the PID %d",self.output)
+
