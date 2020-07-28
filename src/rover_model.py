@@ -124,8 +124,8 @@ class PID(object):
         if (delta_time >=self.sample_time):
             self.PTerm = self.Kp * error
             self.int_error = self.int_error+error
-            # self.ITerm = self.Ki*self.int_error *delta_time
-            self.ITerm = self.int_error *delta_time
+            self.ITerm = self.Ki*self.int_error *delta_time
+            # self.ITerm = self.int_error *delta_time
             if (self.ITerm < -200):
                 self.ITerm = -200
             elif (self.ITerm > self.windup_guard):
@@ -136,7 +136,7 @@ class PID(object):
             self.DTerm = delta_error / delta_time
         self.last_time = self.current_time
         self.last_error = error
-        self.output = -1*int(self.PTerm+(self.Ki*self.ITerm)+(self.Kd*self.DTerm))
+        self.output = -1*int(self.PTerm+(self.ITerm)+(self.Kd*self.DTerm))
         if self.output <-200:
             self.output = -200
         
