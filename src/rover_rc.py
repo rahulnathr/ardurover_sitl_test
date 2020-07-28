@@ -25,8 +25,10 @@ class View(tk.Tk):
         self.createCanvas()
         self.createButton1Layer()
         self.createButton2Layer()
+        self.createPIDControlLayer()
         self.createMission1()
         self.createMission2()
+        self.PID_control_layer()
 
     def createLeftFrame(self):
         self.s.configure('Frame2.TFrame',background='light gray')
@@ -53,6 +55,10 @@ class View(tk.Tk):
     def createButton2Layer(self):
         self.button_two_layer = tk.Frame(self.leftframe, bg='white')
         self.button_two_layer.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W),padx=5,pady=5)
+    
+    def createPIDControlLayer(self):
+        self.pid_layer = tk.Frame(self.leftframe,bg='white')
+        self.pid_layer.grid(row=2, column=0, sticky=(tk.N, tk.S, tk.E, tk.W),padx=5,pady=5)    
 
     def createMission1(self):
         self.labelx = tk.Label(self.button_one_layer,text='X')
@@ -108,10 +114,31 @@ class View(tk.Tk):
         self.labelStatus = tk.Label(self.button_two_layer, text='Status')
         self.labelStatus.grid(row=4, column=1, sticky=(tk.N, tk.S, tk.E, tk.W))
         
-
+        
         self.progress_bar = ttk.Progressbar(self.button_two_layer,mode='determinate',orient=tk.HORIZONTAL)
         self.progress_bar.grid(row =5,column=0,columnspan=2,sticky=(tk.N, tk.S, tk.E, tk.W))
         self.progress_bar['value'] =50
 
+    def PID_control_layer(self):
+        self.P_scale = tk.Scale(self.pid_layer,from_=0,to=20.0,orient=tk.HORIZONTAL,
+                                resolution=0.1, command = self.controller.change_P_value)
+        self.P_scale.grid(row=0,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.P_scale_label = tk.Label(self.pid_layer,text="P value")
+        self.P_scale_label.grid(row=0,column=1,sticky=(tk.N, tk.S, tk.E, tk.W))
+
+        self.I_scale = tk.Scale(self.pid_layer,from_=0,to=5,orient=tk.HORIZONTAL,
+                                resolution=0.01,command = self.controller.change_I_value)
+        self.I_scale.grid(row=1,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.I_scale_label = tk.Label(self.pid_layer,text="I value")
+        self.I_scale_label.grid(row=1,column=1,sticky=(tk.N, tk.S, tk.E, tk.W))
+
+        self.D_scale = tk.Scale(self.pid_layer,from_=0,to=5,orient=tk.HORIZONTAL,
+                        resolution=0.01,command = self.controller.change_D_value)
+        self.D_scale.grid(row=2,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.D_scale_label = tk.Label(self.pid_layer,text="D value")
+        self.D_scale_label.grid(row=2,column=1,sticky=(tk.N, tk.S, tk.E, tk.W))
+
+    
+        
     def main(self):
         self.mainloop()
