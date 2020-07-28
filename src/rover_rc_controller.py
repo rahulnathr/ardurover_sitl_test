@@ -2,6 +2,7 @@
 from rover_rc import View
 from rover_model import Model
 from rover_model import LocationMavros
+from rover_model import PID
 import Tkinter as tk
 import rospy 
 
@@ -10,8 +11,11 @@ class Controller(object):
         self.view = View(self)
         self.model = Model()
         self.location = LocationMavros(self)
+        self.PID_CONTROL = PID(5.5,0.2,0.2)
+        self.PID_CONTROL.setPoint = 50.0
         self.x1 = 0
         self.y1 = 0
+        self.view.P_scale.set(0.1)
 
     def sent_coordinates_two(self):
         self.conversion_to_integers_two()
@@ -54,6 +58,22 @@ class Controller(object):
         new_y = self.model.originy+y
         coords = [new_x,new_y,new_x+5,new_y+5]
         self.view.canvas_plot.create_rectangle(coords,fill='red')
+    def change_P_value(self,v):
+        value_slider = self.view.P_scale.get()
+        self.PID_CONTROL.Kp = value_slider
+        rospy.loginfo("The P value is %f",self.PID_CONTROL.Kp)
+    def change_I_value(self,v):
+        value_slider = self.view.I_scale.get()
+        
+        self.PID_CONTROL.Ki = value_slider
+        rospy.loginfo("The I value is %f",self.PID_CONTROL.Ki)
+
+    def change_D_value(self,v):
+        value_slider = self.view.D_scale.get()
+        self.PID_CONTROL.Kd = value_slider
+        rospy.loginfo("The D value is %f",self.PID_CONTROL.Kd)
+
+
 
 if __name__ == "__main__":
     rospy.init_node("location_node")
