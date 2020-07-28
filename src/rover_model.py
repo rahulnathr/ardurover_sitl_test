@@ -25,7 +25,7 @@ class LocationMavros(object):
         #format is (topic name,topic type,callback)
         # self.filteredOdomSubscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.state)
         self.filteredOdomSubscriber=rospy.Subscriber("/mavros/global_position/compass_hdg",Float64,self.state)
-        self.PID_CONTROL = PID(5,0.1,0.2)
+        # self.PID_CONTROL = PID(5.5,0.2,0.2)
         # self.filteredRelativeHeight=rospy.Subscriber("/mavros/global_position/rel_alt",Float64,self.state)
         self.controller = controller
         # self.setpointPublisher = rospy.Publisher("/setpoint",Float64,queue_size=10)
@@ -34,7 +34,7 @@ class LocationMavros(object):
         # self.controlSignalSubscriber=rospy.Subscriber("/control_effort",Float64,self.controlaction)
         self.rc_msg = OverrideRCIn()
         self.rc_msg.channels =[0,0,0,0,0,0,0,0]
-        self.PID_CONTROL.setPoint = 50.0
+        # self.PID_CONTROL.setPoint = 50.0
         
 
 
@@ -50,9 +50,10 @@ class LocationMavros(object):
     def state(self,msg):
         compass = msg.data 
         rospy.loginfo("The compass value is %f",compass)
-        self.PID_CONTROL.update(compass,None)
-        self.rc_msg.channels[2]=1500
-        self.rc_msg.channels[0]=self.PID_CONTROL.output
+        self.controller.PID_CONTROL.update(compass,None)
+    # PID_CONTROL.update(compass,None)
+        self.rc_msg.channels[2]=1700
+        self.rc_msg.channels[0]=self.controller.PID_CONTROL.output
         self.RCPublisher.publish(self.rc_msg)
 
     # def state(self,msg):
