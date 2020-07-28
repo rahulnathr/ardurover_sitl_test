@@ -51,7 +51,7 @@ class LocationMavros(object):
         compass = msg.data 
         rospy.loginfo("The compass value is %f",compass)
         self.PID_CONTROL.update(compass,None)
-        self.rc_msg.channels[2]=1700
+        self.rc_msg.channels[2]=1500
         self.rc_msg.channels[0]=self.PID_CONTROL.output
         self.RCPublisher.publish(self.rc_msg)
 
