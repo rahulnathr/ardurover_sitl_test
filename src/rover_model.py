@@ -25,7 +25,7 @@ class LocationMavros(object):
         #format is (topic name,topic type,callback)
         # self.filteredOdomSubscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.state)
         self.filteredOdomSubscriber=rospy.Subscriber("/mavros/global_position/compass_hdg",Float64,self.state)
-        self.PID_CONTROL = PID(8.2,0.7,0.5)
+        self.PID_CONTROL = PID(5,0.1,0.2)
         # self.filteredRelativeHeight=rospy.Subscriber("/mavros/global_position/rel_alt",Float64,self.state)
         self.controller = controller
         # self.setpointPublisher = rospy.Publisher("/setpoint",Float64,queue_size=10)
@@ -34,7 +34,7 @@ class LocationMavros(object):
         # self.controlSignalSubscriber=rospy.Subscriber("/control_effort",Float64,self.controlaction)
         self.rc_msg = OverrideRCIn()
         self.rc_msg.channels =[0,0,0,0,0,0,0,0]
-        self.PID_CONTROL.setPoint = 10.0
+        self.PID_CONTROL.setPoint = 50.0
         
 
 
@@ -51,7 +51,7 @@ class LocationMavros(object):
         compass = msg.data 
         rospy.loginfo("The compass value is %f",compass)
         self.PID_CONTROL.update(compass,None)
-        self.rc_msg.channels[2]=1600
+        self.rc_msg.channels[2]=1700
         self.rc_msg.channels[0]=self.PID_CONTROL.output
         self.RCPublisher.publish(self.rc_msg)
 
@@ -110,7 +110,7 @@ class PID(object):
 
         #windup Guard
         self.int_error = 0.0
-        self.windup_guard = 400
+        self.windup_guard = 200
         self.output = 0 #for the controller dead region
     
     def update(self,feedback_value,current_time=None):
@@ -118,14 +118,16 @@ class PID(object):
         self.setPoint = 50.0
         error = feedback_value - self.setPoint
         self.current_time = current_time if current_time is not None else time.time()
-        self.int_error = self.int_error+error
+        
         delta_time = self.current_time-self.last_time
         delta_error = error - self.last_error
         if (delta_time >=self.sample_time):
             self.PTerm = self.Kp * error
+            self.int_error = self.int_error+error
+            # self.ITerm = self.Ki*self.int_error *delta_time
             self.ITerm = self.int_error *delta_time
-            if (self.ITerm < -400):
-                self.ITerm = -400
+            if (self.ITerm < -200):
+                self.ITerm = -200
             elif (self.ITerm > self.windup_guard):
                 self.ITerm = self.windup_guard
             
@@ -134,12 +136,12 @@ class PID(object):
             self.DTerm = delta_error / delta_time
         self.last_time = self.current_time
         self.last_error = error
-        self.output = int(self.PTerm+(self.Ki*self.ITerm)+(self.Kd*self.DTerm))
-        if self.output <-400:
-            self.output = -400
+        self.output = -1*int(self.PTerm+(self.Ki*self.ITerm)+(self.Kd*self.DTerm))
+        if self.output <-200:
+            self.output = -200
         
-        elif self.output>400:
-            self.output = 400
+        elif self.output>200:
+            self.output = 200
         else:
             self.output = self.output
         self.output = self.dead_band + self.output
