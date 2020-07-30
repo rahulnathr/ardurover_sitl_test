@@ -62,6 +62,7 @@ class Controller(object):
         value_slider = self.view.P_scale.get()
         self.PID_CONTROL.Kp = value_slider
         rospy.loginfo("The P value is %f",self.PID_CONTROL.Kp)
+        
     def change_I_value(self,v):
         value_slider = self.view.I_scale.get()
         
@@ -73,7 +74,10 @@ class Controller(object):
         self.PID_CONTROL.Kd = value_slider
         rospy.loginfo("The D value is %f",self.PID_CONTROL.Kd)
 
-
+    def change_setPoint(self,v):
+        value_slider = self.view.compass_scale.get()
+        self.PID_CONTROL.setPoint = value_slider
+        rospy.loginfo("The setpoint is %f",self.PID_CONTROL.setPoint)
 
 if __name__ == "__main__":
     rospy.init_node("location_node")

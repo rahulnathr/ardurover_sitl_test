@@ -26,9 +26,11 @@ class View(tk.Tk):
         self.createButton1Layer()
         self.createButton2Layer()
         self.createPIDControlLayer()
+        self.createCompassControlLayer()
         self.createMission1()
         self.createMission2()
         self.PID_control_layer()
+        self.compass_control_slider()
 
     def createLeftFrame(self):
         self.s.configure('Frame2.TFrame',background='light gray')
@@ -59,6 +61,11 @@ class View(tk.Tk):
     def createPIDControlLayer(self):
         self.pid_layer = tk.Frame(self.leftframe,bg='white')
         self.pid_layer.grid(row=2, column=0, sticky=(tk.N, tk.S, tk.E, tk.W),padx=5,pady=5)    
+
+    def createCompassControlLayer(self):
+        self.compass_controllayer = tk.Frame(self.leftframe,bg='white')
+        self.compass_controllayer.grid(row=3, column=0, sticky=(tk.N, tk.S, tk.E, tk.W),padx=5,pady=5)
+
 
     def createMission1(self):
         self.labelx = tk.Label(self.button_one_layer,text='X')
@@ -138,7 +145,11 @@ class View(tk.Tk):
         self.D_scale_label = tk.Label(self.pid_layer,text="D value")
         self.D_scale_label.grid(row=2,column=1,sticky=(tk.N, tk.S, tk.E, tk.W))
 
-    
+    def compass_control_slider(self):
+        self.compass_scale = tk.Scale(self.compass_controllayer,from_=0,to=360.0,
+                            orient=tk.HORIZONTAL,resolution=0.1,
+                             command = self.controller.change_setPoint)
+        self.compass_scale.grid(row=0,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
         
     def main(self):
         self.mainloop()
