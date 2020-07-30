@@ -50,6 +50,7 @@ class LocationMavros(object):
     def state(self,msg):
         compass = msg.data 
         rospy.loginfo("The compass value is %f",compass)
+        rospy.loginfo("The setpoint value is %f",self.controller.PID_CONTROL.setPoint)
         self.controller.PID_CONTROL.update(compass,None)
     # PID_CONTROL.update(compass,None)
         self.rc_msg.channels[2]=1700
@@ -116,7 +117,7 @@ class PID(object):
     
     def update(self,feedback_value,current_time=None):
         "The PID update computation"
-        self.setPoint = 50.0
+        # self.setPoint = 0.0
         error = feedback_value - self.setPoint
         self.current_time = current_time if current_time is not None else time.time()
         
