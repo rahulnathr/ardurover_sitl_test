@@ -90,6 +90,12 @@ class LocationMavros(object):
         # self.setpointPublisher.publish(setpoint_required)
 
 
+"""
+The reference to PID object
+1) https://github.com/ivmech/ivPID/blob/master/PID.py
+2) https://github.com/m-lundberg/simple-pid
+3) Notes by Prof: Guoyuan at NTNU Alesund
+"""   
 class PID(object):
     "A PID Control"
     def __init__(self,P =0.5,I=0.0,D=0.0,current_time=None):
