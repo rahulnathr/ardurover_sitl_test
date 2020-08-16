@@ -26,11 +26,14 @@ class View(tk.Tk):
         self.createButton1Layer()
         self.createButton2Layer()
         self.createPIDControlLayer()
+        
         self.createCompassControlLayer()
+        self.createWaypointDeleteLayer()
         self.createMission1()
         self.createMission2()
         self.PID_control_layer()
         self.compass_control_slider()
+        self.wayptDelele()
 
     def createLeftFrame(self):
         self.s.configure('Frame2.TFrame',background='light gray')
@@ -66,6 +69,9 @@ class View(tk.Tk):
         self.compass_controllayer = tk.Frame(self.leftframe,bg='white')
         self.compass_controllayer.grid(row=3, column=0, sticky=(tk.N, tk.S, tk.E, tk.W),padx=5,pady=5)
 
+    def createWaypointDeleteLayer(self):
+        self.wpdeletelayer = tk.Frame(self.leftframe,bg ='white')
+        self.wpdeletelayer.grid(row=4,column=0,sticky=(tk.N, tk.S, tk.E, tk.W),padx=5,pady=5)
 
     def createMission1(self):
         self.labelx = tk.Label(self.button_one_layer,text='X')
@@ -125,7 +131,14 @@ class View(tk.Tk):
         self.progress_bar = ttk.Progressbar(self.button_two_layer,mode='determinate',orient=tk.HORIZONTAL)
         self.progress_bar.grid(row =5,column=0,columnspan=2,sticky=(tk.N, tk.S, tk.E, tk.W))
         self.progress_bar['value'] =50
+    
+    
+    def wayptDelele(self):
+        self.delentry = tk.Entry(self.wpdeletelayer)
+        self.delentry.grid(row =0,column=0,sticky=(tk.N, tk.S, tk.E, tk.W))
 
+        self.deltebtn = tk.Button(self.wpdeletelayer,text="Delete WP",command=self.controller.delete_waypoints)
+        self.deltebtn.grid(row=0,column=1,sticky=(tk.N, tk.S, tk.E, tk.W))
     def PID_control_layer(self):
         self.P_scale = tk.Scale(self.pid_layer,from_=0,to=20.0,orient=tk.HORIZONTAL,
                                 resolution=0.1, command = self.controller.change_P_value)

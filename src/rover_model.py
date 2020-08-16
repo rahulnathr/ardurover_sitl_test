@@ -7,23 +7,30 @@ from geometry_msgs.msg import PoseStamped
 import math 
 from mavros_msgs.msg import OverrideRCIn
 import time
+import numpy as np 
 class Model(object):
     def __init__(self):
         
         self.originx = 200
         self.originy = 250
+        self.originz = 0
         self.x = 0
         self.y = 0
         self.missionx1 = self.originx+self.x
         self.missiony1 = self.originy+self.y
         self.missionx2 = self.originx+self.y
         self.missiony2 = self.originy+self.y
-
+        self.mapping_array = np.array([[1,0,0,self.originx],
+                                        [0,1,0,self.originy],
+                                        [0,0,1,self.originz],
+                                        [0,0,0,1]])
+        # print(self.mapping_array)
 class LocationMavros(object):
     def __init__(self,controller):
-        self.locationSubscriber = rospy.Subscriber("/mavros/global_position/local",Odometry,self.print_location)
+        # self.locationSubscriber = rospy.Subscriber("/mavros/global_position/local",Odometry,self.print_location)
+        # self.locationSubscriber = rospy.Subscriber("/mavros/global_position/local",Odometry,self.print_location)
         #format is (topic name,topic type,callback)
-        # self.filteredOdomSubscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.state)
+        self.locationSubscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.print_location)
         self.filteredOdomSubscriber=rospy.Subscriber("/mavros/global_position/compass_hdg",Float64,self.state)
         # self.PID_CONTROL = PID(5.5,0.2,0.2)
         # self.filteredRelativeHeight=rospy.Subscriber("/mavros/global_position/rel_alt",Float64,self.state)
@@ -75,20 +82,33 @@ class LocationMavros(object):
 
 
 
+    # def print_location(self,msg):
+    #     x = msg.pose.pose.position.x
+    #     y = msg.pose.pose.position.y
+    #     # rospy.loginfo("X value %f",x)
+    #     # rospy.loginfo("Y value %f",y)
+
+    #     x_round = int(round(x))
+    #     y_round = int(round(y))
+    #     # rospy.loginfo("X value %f",x_round)
+    #     # rospy.loginfo("Y value %f",y_round)
+    #     self.controller.plotter_function(x_round,y_round)
+    #     # setpoint_required = 5.0
+    #     # self.setpointPublisher.publish(setpoint_required)
+
     def print_location(self,msg):
-        x = msg.pose.pose.position.x
-        y = msg.pose.pose.position.y
+        x = msg.pose.position.x
+        y = msg.pose.position.y
         # rospy.loginfo("X value %f",x)
         # rospy.loginfo("Y value %f",y)
 
-        x_round = int(round(x))
-        y_round = int(round(y))
+        x_round = int(round(x)) * 5
+        y_round = int(round(y)) * 5
         # rospy.loginfo("X value %f",x_round)
         # rospy.loginfo("Y value %f",y_round)
         self.controller.plotter_function(x_round,y_round)
         # setpoint_required = 5.0
         # self.setpointPublisher.publish(setpoint_required)
-
 
 """
 The reference to PID object
