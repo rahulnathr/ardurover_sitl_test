@@ -8,8 +8,9 @@ class View(tk.Tk):
     """
     The GUI of the application.
     """
-    def __init__(self):
+    def __init__(self,controller):
         tk.Tk.__init__(self)
+        self.controller = controller
         self.title("DP System V1")
         self.geometry("870x950")
         self.wm_resizable(0,0)
@@ -94,7 +95,7 @@ class View(tk.Tk):
     """
     Create Subframe for Master Control
     col-0
-    row-2
+    row-3
     """
 
     def create_control_frame_master(self):
@@ -158,7 +159,8 @@ class View(tk.Tk):
         #scale for Compass P value
         self.compass_P = tk.Scale(self.control_frame_compass,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',
+                                  command = self.controller.change_compass_P)
         self.compass_P.grid(column=0,row=0)
         #scale for Compass I value
         self.compass_I = tk.Scale(self.control_frame_compass,orient=tk.HORIZONTAL,
@@ -173,7 +175,9 @@ class View(tk.Tk):
         #set point scale for the compass
         self.compass_setpoint = tk.Scale(self.control_frame_compass,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=360.0,
-                                  resolution = 1,bg='black',fg='white')
+                                  resolution = 1,bg='black',fg='white',
+                                  command=self.controller.change_compass_setpoint)
+        
         self.compass_setpoint.grid(column=0,row=3)
 
         #text for the controls
@@ -191,11 +195,11 @@ class View(tk.Tk):
 
         #control buttons for activate and deactivate PID control
         self.compass_control_activate = ttk.Button(self.control_frame_compass,
-                                                    text="Activate")
+                                                    text="Activate",command = self.controller.compass_DP_ON)
         self.compass_control_activate.grid(row=0,column=2,sticky='ew')
 
         self.compass_control_deactivate = ttk.Button(self.control_frame_compass,
-                                                    text="Deactivate")
+                                                    text="Deactivate",command=self.controller.compass_DP_OFF)
         self.compass_control_deactivate.grid(row=1,column=2,sticky='ew')
 
         self.compass_control_status = tk.Label(self.control_frame_compass,text="Status:OFF",fg='red')
@@ -329,8 +333,12 @@ class View(tk.Tk):
     def create_canvas_for_path(self):
         self.canvas_path_plot = tk.Canvas(self.canvas_frame,width=400,height=330,bg='white')
         self.canvas_path_plot.grid(row=0,column=0,sticky='nsew')
-        self.update()
-        
+        """
+        Check the canvas size by uncommenting the comments below
+        """
+        #self.update()
+    
+    
     def main(self):
         self.mainloop()
 
