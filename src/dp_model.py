@@ -9,10 +9,12 @@ import time
 import math
 from matplotlib import animation as animation
 import matplotlib.pyplot as plt
+from mavros_msgs.srv import *
 
 class Model(object):
     def __init__(self):
         print("hello I'm in Model Now")
+
         """
         Things to do
 
@@ -20,6 +22,13 @@ class Model(object):
         2. 
         
         """
+        self.originx = 200
+        self.originy = 200
+        self.originz = 0
+        self.mapping_array = np.array([[1,0,0,self.originx],
+                                        [0,1,0,self.originy],
+                                        [0,0,1,self.originz],
+                                        [0,0,0,1]])
 
 
 
@@ -47,18 +56,29 @@ class Control_Mavros(object):
         self.rc_message = OverrideRCIn()
         self.rc_message.channels = [0,0,0,0,0,0,0,0]
         self.RC_Publisher = rospy.Publisher("/mavros/rc/override",OverrideRCIn,queue_size=10)
-        self.DP_compass_flag =0
-        self.DP_local_x_flag =0
-        self.DP_local_y_flag =0
+        self.DP_compass_flag = 0 #flag to turn on/off compass_dp
+        self.DP_local_x_flag = 0 #flag to turn on/off local_x_dp
+        self.DP_local_y_flag = 0 #flag to turn on/off local_y_dp
         self.safe_pwm = 1500
-        self.controller = controller
+        self.controller = controller #passing the controler object
         self.compass_value_placeholder = []
         self.compass_value_SP_placeholder = []
         self.local_x_placeholder = []
         self.local_x_value_SP_placeholder = []
         self.local_y_placeholder = []
         self.local_y_value_SP_placeholder = []
-        self.animation_compass()
+        self.local_x_value = 0  #placeholder to update the subscribed x values
+        self.local_y_value = 0  #placeholder to update the subscribed y values
+        self.arm_disarm = rospy.ServiceProxy('/mavros/cmd/arming',mavros_msgs.srv.CommandBool)
+        self.animation_main_for_matplot()
+
+        """Experimental--almost approved""" 
+        self.counter_local_x = 0
+        self.counter_local_y = 0
+        self.internal_local_x_dp_flag = 0
+        self.internal_local_y_dp_flag = 0
+        self.local_x_pwm = 1500
+        self.local_y_pwm = 1500 
         
         """
         The rc channels are as follows:
@@ -75,74 +95,172 @@ class Control_Mavros(object):
         uncomment to add logging feature for compass value 
         uncomment to add logging feature for setpoint value from controller
         """
-        # rospy.loginfo("The compass value is %f",compass_value)
-        # rospy.loginfo("The setpoint compass value is %f",self.controller.compass_PID.setPoint)
+        rospy.loginfo("The compass value is %f",compass_value)
+        rospy.loginfo("The setpoint compass value is %f",self.controller.compass_PID.setPoint)
         """
         Logic is to turn on the update only if the flag is true
         Or it means DP system for Compass is turned on.
         ---->Similarly add a list to append COmpass value for dynamic plot-SP and compass
-        ---->Also the plot is update no matter if DP is on or not.
+        ---->Also the plot is updated no matter if DP is on or not.
         """
         self.compass_value_placeholder.append(int(compass_value))
         self.compass_value_SP_placeholder.append(int(self.controller.compass_PID.setPoint))
-        # print(self.controller.compass_value_placeholder)
-        # print(self.controller.compass_setpoint_placeholder)
-        # print(self.compass_value_placeholder)
-        # print(self.compass_value_SP_placeholder)
-        compass_pwm_out = self.controller.compass_PID.update(compass_value,None)
-
+        
+        self.controller.compass_PID.update(compass_value,None) #this calls the update function of PID which computes the PWM
+    
+        compass_pwm_out = self.controller.compass_PID.output #return the updated value of PWM
         if self.DP_compass_flag:
             self.function_for_rc_publish(compass_pwm_out,1700,self.safe_pwm)
-            print(compass_pwm_out)
+            # print(compass_pwm_out)
         else:
             rospy.loginfo("DP for compass is turned Off,Compass value is %f",compass_value)
             self.function_for_rc_publish(self.safe_pwm,1500,self.safe_pwm)
-            # self.controller.change_compass_matplot(self.compass_value_placeholder,self.compass_value_SP_placeholder)
-            # self.controller.change_compass_matplot(self.compass_value_placeholder,self.compass_value_SP_placeholder)
-            # self.view.compass_axis.clear()
-            # self.view.compass_axis.plot(self.compass_value_placeholder,label="Compass Value")
-            # self.view.compass_axis.plot(self.compass_value_SP_placeholder,label="Compass SP")
-            # self.view.compass_axis.legend()
+    
+
+    def publish_limiter(self,compass_pwm = 1500,local_x_pwm = 1500,local_y_pwm = 1500,DP_internal_local_x_flag=0,DP_internal_local_y_flag=0):
+        int_x_flag = DP_internal_local_x_flag
+        int_y_flag = DP_internal_local_y_flag
+        if (int_x_flag == 1 and int_y_flag == 0): #x on and y off,publish only x
+            self.function_for_rc_publish(1500,local_x_pwm,1500)
+            rospy.loginfo("The channels are  X %f and Y %f",local_x_pwm,local_y_pwm)
+        elif (int_y_flag == 1 and int_x_flag ==0): #x off and y on,publish only y
+            self.function_for_rc_publish(1500,local_y_pwm,1500)
+            rospy.loginfo("The channels are  Y %f and X %f",local_y_pwm,local_x_pwm)
+        elif (int_x_flag == 1 and int_y_flag == 1):
+            self.function_for_rc_publish(1500,1500,1500)
+            rospy.loginfo("Both ON")
+        else:
+            self.function_for_rc_publish(1500,1500,1500)
+            rospy.loginfo("Both OFF")    
     def function_for_rc_publish(self,compass_pwm = 1500,local_x_pwm = 1500,local_y_pwm =1500):
         """
             In this logic,the local_x and local_y can change based on origin
             set automatically.
         """
-            
         self.rc_message.channels[0] = compass_pwm
         self.rc_message.channels[2] = local_x_pwm
         self.rc_message.channels[3] = local_y_pwm
+        print(self.rc_message)
         self.RC_Publisher.publish(self.rc_message)
 
     def local_x_callback(self,msg):
-        x = msg.pose.position.x
-        local_x_pwm_out = 0 #add controller out here
-        self.local_x_placeholder.append(int(x))
-        if self.DP_local_x_flag:     
-            self.function_for_rc_publish(self.safe_pwm,local_x_pwm_out,self.safe_pwm)
-        else:
-            rospy.loginfo("DP for Local_X turned off,local_x value is %f",x)
-            self.function_for_rc_publish(self.safe_pwm,1700,self.safe_pwm)
+        self.local_x_value = msg.pose.position.x
+        plot_x = int(round(self.local_x_value))
+        plot_y = int(round(msg.pose.position.y))
+        self.counter_local_x = self.counter_local_x + 1 #counter to assess the optimum PWM Delivery
+        x_string = "Current X: " + str(round(self.local_x_value,2))
+        self.view.local_X_control_current_X.configure(text = x_string)
+        # rospy.loginfo("X counter %f",self.counter_local_x)
 
+        if self.counter_local_x < 6:
+            print("Channel 2 ON "+str(self.counter_local_x))
+            self.internal_local_x_dp_flag = 1
+        elif self.counter_local_x == 11:
+            self.counter_local_x = 0
+        else:
+            print("Channel 2 OFF"+str(self.counter_local_x))
+            self.internal_local_x_dp_flag = 0
+
+        self.local_x_placeholder.append(int(self.local_x_value)) #this list goes for live plotting of the local_x_value
+        self.controller.plotter_function_for_path(plot_x,plot_y)
+        if self.DP_local_x_flag:
+            """
+                Logic here is to check if the new_x value is within +/- 1 m from the setpoint
+                If greater than 0.8m from current SP, give new value for update
+                if less than 0.8 m from current SP, give new value for update
+                else, give current SP  for update
+            """
+            if self.local_x_value > (self.controller.local_x_PID.setPoint + 1):
+                self.controller.local_x_PID.update(self.local_x_value,None)
+            elif self.local_x_value < (self.controller.local_x_PID.setPoint - 1):
+                self.controller.local_x_PID.update(self.local_x_value,None)
+            else:
+                self.controller.local_x_PID.update(self.controller.local_x_PID.setPoint)
+            
+            self.local_x_pwm = self.controller.local_x_PID.output   #add controller out here
+            self.local_x_pwm = 1580
+            print("local_x_works")     
+            # self.function_for_rc_publish(self.safe_pwm,local_x_pwm_out,self.safe_pwm)
+            self.publish_limiter(1500,self.local_x_pwm,self.local_y_pwm,
+                        self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)
+            
+        else:
+            # rospy.loginfo("DP for Local_X turned off,local_x value is %f",self.local_x_value)
+            self.local_x_pwm = 1500
+            # self.publish_limiter(1500,self.local_x_pwm,self.local_y_pwm,
+            #             self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)
+            
+            # self.function_for_rc_publish(self.safe_pwm,1700,self.safe_pwm)
+        
 
     def local_y_callback(self,msg):
-        y = msg.pose.position.y
-        local_y_pwm_out = 0 #add controller out here
-        self.local_y_placeholder.append(int(y))
-        if self.DP_local_y_flag:    
-            self.function_for_rc_publish(self.safe_pwm,local_x_pwm_out,self.safe_pwm)
+        self.local_y_value = msg.pose.position.y
+        
+        self.counter_local_y = self.counter_local_y + 1
+        # rospy.loginfo("Y counter %f",self.counter_local_y)
+        y_string = "Current Y: " + str(round(self.local_y_value,2))
+        self.view.local_Y_control_current_Y.configure(text = y_string)
+        
+        if self.counter_local_y == 11:
+            self.counter_local_y = 0
+        elif self.counter_local_y > 5:
+            print("Channel 3 ON"+str(self.counter_local_y))
+            self.internal_local_y_dp_flag = 1
         else:
-            rospy.loginfo("DP for Local_Y turned off,local_y value is %f",y)
-            self.function_for_rc_publish(self.safe_pwm,1700,self.safe_pwm)
+            print("Channel 3 OFF"+str(self.counter_local_y))
+            self.internal_local_y_dp_flag = 0
+        
+        
+        self.local_y_placeholder.append(int(self.local_y_value)) #this list goes for the live plotting of the local_y_value
+        if self.DP_local_y_flag:
+            """
+                Logic here is to check if the new_x value is within +/- 1 m from the setpoint
+                If greater than 0.8m from current SP, give new value for update
+                if less than 0.8 m from current SP, give new value for update
+                else, give current SP  for update
+            """
+            if self.local_y_value > (self.controller.local_y_PID.setPoint + 1):
+                self.controller.local_y_PID.update(self.local_y_value,None)
+            elif self.local_y_value < (self.controller.local_y_PID.setPoint - 1):
+                self.controller.local_y_PID.update(self.local_y_value,None)
+            else:
+                self.controller.local_y_PID.update(self.controller.local_y_PID.setPoint)
+            
+            self.local_y_pwm = self.controller.local_y_PID.output   #add controller out here
+            self.local_y_pwm = 1800
+            print("local_y_works")
+            self.publish_limiter(1500,self.local_x_pwm,self.local_y_pwm,
+                        self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)     
+        else:
+            self.local_y_pwm = 1500
+            # self.publish_limiter(1500,self.local_x_pwm,self.local_y_pwm,
+            #             self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)
+        #     rospy.loginfo("DP for Local_Y turned off,local_y value is %f",self.local_y_value)
+        #     # self.function_for_rc_publish(self.safe_pwm,1700,self.safe_pwm)
 
+    def _arm(self):
+        rospy.wait_for_service('/mavros/cmd/arming')
+        try:
+            self.arm_disarm(True)
+            rospy.loginfo("Armed")
+        except rospy.ServiceException:
+            rospy.loginfo('arming failed')
 
-    def animation_compass(self):
-        self.ani = animation.FuncAnimation(self.view.compass_fig,self.animate_compass,interval=1000)
-        self.ani2 = animation.FuncAnimation(self.view.local_x,self.animate_compass,interval = 1000)
-        self.ani3 = animation.FuncAnimation(self.view.local_y,self.animate_compass,interval = 1000)
+    def _disarm(self):
+        rospy.wait_for_service('/mavros/cmd/arming')
+        try:
+            self.arm_disarm(False)
+            rospy.loginfo("Disarmed")
+        except rospy.ServiceException:
+            rospy.loginfo('Disarm Failed')
+
+    def animation_main_for_matplot(self):
+        self.ani = animation.FuncAnimation(self.view.compass_fig,self.animate_sub,interval=300)
+        self.ani2 = animation.FuncAnimation(self.view.local_x,self.animate_sub,interval = 300)
+        self.ani3 = animation.FuncAnimation(self.view.local_y,self.animate_sub,interval = 300)
         plt.show()
 
-    def animate_compass(self,i):
+    def animate_sub(self,i):
         print("Hi I am in animate")
         self.view.compass_axis.clear()
         self.view.compass_axis.plot(self.compass_value_placeholder,label="Compass")

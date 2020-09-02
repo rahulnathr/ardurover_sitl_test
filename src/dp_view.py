@@ -165,12 +165,12 @@ class View(tk.Tk):
         #scale for Compass I value
         self.compass_I = tk.Scale(self.control_frame_compass,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',command = self.controller.change_compass_I)
         self.compass_I.grid(column=0,row=1)
         #scale for Compass D value
         self.compass_D = tk.Scale(self.control_frame_compass,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',command = self.controller.change_compass_D)
         self.compass_D.grid(column=0,row=2)
         #set point scale for the compass
         self.compass_setpoint = tk.Scale(self.control_frame_compass,orient=tk.HORIZONTAL,
@@ -214,21 +214,21 @@ class View(tk.Tk):
         #scale for Compass P value
         self.local_X_P = tk.Scale(self.control_frame_localX,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_x_P)
         self.local_X_P.grid(column=0,row=0)
         #scale for Compass I value
         self.local_X_I = tk.Scale(self.control_frame_localX,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_x_I)
         self.local_X_I.grid(column=0,row=1)
         #scale for Compass D value
         self.local_X_D = tk.Scale(self.control_frame_localX,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_x_D)
         self.local_X_D.grid(column=0,row=2)
 
-        local_X_setpoint_text = tk.Label(self.control_frame_localX,text = "SP X:",font=(16),bg='honeydew2')
-        local_X_setpoint_text.grid(row=3,column=0,sticky='ew')
+        self.local_X_setpoint_text = tk.Label(self.control_frame_localX,text = "SP X:",font=(16),bg='honeydew2')
+        self.local_X_setpoint_text.grid(row=3,column=0,sticky='ew')
         # #set point scale for the compass
         # self.local_X_setpoint = tk.Button(self.control_frame_localX,orient=tk.HORIZONTAL,
         #                           length=100,from_=0,to=360.0,
@@ -249,11 +249,11 @@ class View(tk.Tk):
 
         #control buttons for activate and deactivate PID control
         self.local_X_control_activate = ttk.Button(self.control_frame_localX,
-                                                    text="Activate")
+                                                    text="Activate",command = self.controller.local_x_DP_ON)
         self.local_X_control_activate.grid(row=0,column=2,sticky='ew')
 
         self.local_X_control_deactivate = ttk.Button(self.control_frame_localX,
-                                                    text="Deactivate")
+                                                    text="Deactivate",command = self.controller.local_x_DP_OFF)
         self.local_X_control_deactivate.grid(row=1,column=2,sticky='ew')
 
         self.local_X_control_status = tk.Label(self.control_frame_localX,text="Status:OFF",fg='red')
@@ -267,21 +267,21 @@ class View(tk.Tk):
         #scale for Compass P value
         self.local_Y_P = tk.Scale(self.control_frame_localY,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_y_P)
         self.local_Y_P.grid(column=0,row=0)
         #scale for Compass I value
         self.local_Y_I = tk.Scale(self.control_frame_localY,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_y_I)
         self.local_Y_I.grid(column=0,row=1)
         #scale for Compass D value
         self.local_Y_D = tk.Scale(self.control_frame_localY,orient=tk.HORIZONTAL,
                                   length=100,from_=0,to=20.0,
-                                  resolution = 0.1,bg='black',fg='white')
+                                  resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_y_D)
         self.local_Y_D.grid(column=0,row=2)
 
-        local_Y_setpoint_text = tk.Label(self.control_frame_localY,text = "SP Y:",font=(16),bg='honeydew2')
-        local_Y_setpoint_text.grid(row=3,column=0,sticky='ew')
+        self.local_Y_setpoint_text = tk.Label(self.control_frame_localY,text = "SP Y:",font=(16),bg='honeydew2')
+        self.local_Y_setpoint_text.grid(row=3,column=0,sticky='ew')
         # #set point scale for the compass
         # self.local_X_setpoint = tk.Button(self.control_frame_localX,orient=tk.HORIZONTAL,
         #                           length=100,from_=0,to=360.0,
@@ -302,11 +302,11 @@ class View(tk.Tk):
 
         #control buttons for activate and deactivate PID control
         self.local_Y_control_activate = ttk.Button(self.control_frame_localY,
-                                                    text="Activate")
+                                                    text="Activate",command = self.controller.local_y_DP_ON)
         self.local_Y_control_activate.grid(row=0,column=2,sticky='ew')
 
         self.local_Y_control_deactivate = ttk.Button(self.control_frame_localY,
-                                                    text="Deactivate")
+                                                    text="Deactivate",command = self.controller.local_y_DP_OFF)
         self.local_Y_control_deactivate.grid(row=1,column=2,sticky='ew')
 
         self.local_Y_control_status = tk.Label(self.control_frame_localY,text="Status:OFF",fg='red')
@@ -317,29 +317,26 @@ class View(tk.Tk):
     
     
     def create_controller_for_master(self):
-        self.master_controller_stop = tk.Button(self.control_frame_master,text="Deactivate All DP")
+        self.master_controller_stop = tk.Button(self.control_frame_master,text="Deactivate All DP",command = self.controller.deactivate_all_dp_systems)
         self.master_controller_stop.grid(row=0,column=1,sticky='ew')
 
-        self.master_controller_on = tk.Button(self.control_frame_master,text="Activate All DP")
+        self.master_controller_on = tk.Button(self.control_frame_master,text="Activate All DP",command = self.controller.activate_all_dp_systems)
         self.master_controller_on.grid(row=0,column=0,sticky='ew')
 
-        self.master_controller_arm = tk.Button(self.control_frame_master,text="ARM")
+        self.master_controller_arm = tk.Button(self.control_frame_master,text="ARM",command = self.controller.arming_via_mavros)
         self.master_controller_arm.grid(row=0,column=2,sticky='ew')
         
-        self.master_controller_disarm = tk.Button(self.control_frame_master,text="DISARM")
+        self.master_controller_disarm = tk.Button(self.control_frame_master,text="DISARM",command =self.controller.disarm_via_mavros)
         self.master_controller_disarm.grid(row=0,column=3,sticky='ew')
 
 
     def create_canvas_for_path(self):
         self.canvas_path_plot = tk.Canvas(self.canvas_frame,width=400,height=330,bg='white')
         self.canvas_path_plot.grid(row=0,column=0,sticky='nsew')
-        """
-        Check the canvas size by uncommenting the comments below
-        """
-        #self.update()
-    
-    
+              
+  
     def main(self):
+        
         self.mainloop()
 
 
