@@ -23,7 +23,7 @@ class Model(object):
         
         """
         self.originx = 200
-        self.originy = 200
+        self.originy = 150
         self.originz = 0
         self.mapping_array = np.array([[1,0,0,self.originx],
                                         [0,1,0,self.originy],
