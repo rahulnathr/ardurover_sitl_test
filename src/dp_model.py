@@ -54,7 +54,7 @@ class Control_Mavros(object):
         self.location_X_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_x_callback)
         self.location_Y_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_y_callback)
         self.rc_message = OverrideRCIn()
-        self.rc_message.channels = [0,0,0,0,0,0,0,0]
+        self.rc_message.channels = [0,0,0,0,0,0,0,982] #[1500,1500,1500,1500,0,0,1500,982]
         self.RC_Publisher = rospy.Publisher("/mavros/rc/override",OverrideRCIn,queue_size=10)
         self.DP_compass_flag = 0 #flag to turn on/off compass_dp
         self.DP_local_x_flag = 0 #flag to turn on/off local_x_dp
@@ -110,11 +110,11 @@ class Control_Mavros(object):
     
         compass_pwm_out = self.controller.compass_PID.output #return the updated value of PWM
         if self.DP_compass_flag:
-            self.function_for_rc_publish(compass_pwm_out,1700,self.safe_pwm)
+            self.function_for_rc_publish(compass_pwm_out,self.safe_pwm,self.safe_pwm)
             # print(compass_pwm_out)
         else:
             rospy.loginfo("DP for compass is turned Off,Compass value is %f",compass_value)
-            self.function_for_rc_publish(self.safe_pwm,1500,self.safe_pwm)
+            # self.function_for_rc_publish(self.safe_pwm,1500,self.safe_pwm)
     
 
     def publish_limiter(self,compass_pwm = 1500,local_x_pwm = 1500,local_y_pwm = 1500,DP_internal_local_x_flag=0,DP_internal_local_y_flag=0):
@@ -124,10 +124,10 @@ class Control_Mavros(object):
             self.function_for_rc_publish(1500,local_x_pwm,1500)
             rospy.loginfo("The channels are  X %f and Y %f",local_x_pwm,local_y_pwm)
         elif (int_y_flag == 1 and int_x_flag ==0): #x off and y on,publish only y
-            self.function_for_rc_publish(1500,local_y_pwm,1500)
+            self.function_for_rc_publish(1500,1500,local_y_pwm)
             rospy.loginfo("The channels are  Y %f and X %f",local_y_pwm,local_x_pwm)
         elif (int_x_flag == 1 and int_y_flag == 1):
-            self.function_for_rc_publish(1500,1500,1500)
+            self.function_for_rc_publish(1500,local_x_pwm,local_y_pwm)
             rospy.loginfo("Both ON")
         else:
             self.function_for_rc_publish(1500,1500,1500)
@@ -140,6 +140,7 @@ class Control_Mavros(object):
         self.rc_message.channels[0] = compass_pwm
         self.rc_message.channels[2] = local_x_pwm
         self.rc_message.channels[3] = local_y_pwm
+        self.rc_message.channels[1] = local_y_pwm
         print(self.rc_message)
         self.RC_Publisher.publish(self.rc_message)
 
@@ -161,24 +162,24 @@ class Control_Mavros(object):
             print("Channel 2 OFF"+str(self.counter_local_x))
             self.internal_local_x_dp_flag = 0
 
-        self.local_x_placeholder.append(int(self.local_x_value)) #this list goes for live plotting of the local_x_value
+        self.local_x_placeholder.append(self.local_x_value) #this list goes for live plotting of the local_x_value
         self.controller.plotter_function_for_path(plot_x,plot_y)
         if self.DP_local_x_flag:
             """
                 Logic here is to check if the new_x value is within +/- 1 m from the setpoint
                 If greater than 0.8m from current SP, give new value for update
                 if less than 0.8 m from current SP, give new value for update
-                else, give current SP  for update
+                else, give current SP  for update.
             """
-            if self.local_x_value > (self.controller.local_x_PID.setPoint + 1):
-                self.controller.local_x_PID.update(self.local_x_value,None)
-            elif self.local_x_value < (self.controller.local_x_PID.setPoint - 1):
-                self.controller.local_x_PID.update(self.local_x_value,None)
-            else:
-                self.controller.local_x_PID.update(self.controller.local_x_PID.setPoint)
+            # if self.local_x_value > (self.controller.local_x_PID.setPoint + 1):
+            #     self.controller.local_x_PID.update(self.local_x_value,None)
+            # elif self.local_x_value < (self.controller.local_x_PID.setPoint - 1):
+            #     self.controller.local_x_PID.update(self.local_x_value,None)
+            # else:
+            #     self.controller.local_x_PID.update(self.controller.local_x_PID.setPoint)
             
-            self.local_x_pwm = self.controller.local_x_PID.output   #add controller out here
-            self.local_x_pwm = 1580
+            # self.local_x_pwm = self.controller.local_x_PID.output   #add controller out here
+            self.local_x_pwm = 1600
             print("local_x_works")     
             # self.function_for_rc_publish(self.safe_pwm,local_x_pwm_out,self.safe_pwm)
             self.publish_limiter(1500,self.local_x_pwm,self.local_y_pwm,
@@ -211,7 +212,7 @@ class Control_Mavros(object):
             self.internal_local_y_dp_flag = 0
         
         
-        self.local_y_placeholder.append(int(self.local_y_value)) #this list goes for the live plotting of the local_y_value
+        self.local_y_placeholder.append(self.local_y_value) #this list goes for the live plotting of the local_y_value
         if self.DP_local_y_flag:
             """
                 Logic here is to check if the new_x value is within +/- 1 m from the setpoint
@@ -219,15 +220,15 @@ class Control_Mavros(object):
                 if less than 0.8 m from current SP, give new value for update
                 else, give current SP  for update
             """
-            if self.local_y_value > (self.controller.local_y_PID.setPoint + 1):
-                self.controller.local_y_PID.update(self.local_y_value,None)
-            elif self.local_y_value < (self.controller.local_y_PID.setPoint - 1):
-                self.controller.local_y_PID.update(self.local_y_value,None)
-            else:
-                self.controller.local_y_PID.update(self.controller.local_y_PID.setPoint)
+            # if self.local_y_value > (self.controller.local_y_PID.setPoint + 1):
+            #     self.controller.local_y_PID.update(self.local_y_value,None)
+            # elif self.local_y_value < (self.controller.local_y_PID.setPoint - 1):
+            #     self.controller.local_y_PID.update(self.local_y_value,None)
+            # else:
+            #     self.controller.local_y_PID.update(self.controller.local_y_PID.setPoint)
             
-            self.local_y_pwm = self.controller.local_y_PID.output   #add controller out here
-            self.local_y_pwm = 1800
+            # self.local_y_pwm = self.controller.local_y_PID.output   #add controller out here
+            self.local_y_pwm = 1600
             print("local_y_works")
             self.publish_limiter(1500,self.local_x_pwm,self.local_y_pwm,
                         self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)     
@@ -331,10 +332,10 @@ class PID(object):
         self.last_time = self.current_time
         self.last_error = error
         self.output = -1*int(self.PTerm+(self.ITerm)+(self.Kd*self.DTerm))
-        if self.output <-200:
+        if self.output <-200:#changing it here to -100
             self.output = -200
         
-        elif self.output>200:
+        elif self.output>200: #changing it here to 100
             self.output = 200
         else:
             self.output = self.output
