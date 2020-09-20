@@ -49,8 +49,8 @@ class Ui_MainWindow(object):
         self.modey.setObjectName("modey")
         self.forward_slider = QtWidgets.QSlider(self.centralwidget)
         self.forward_slider.setGeometry(QtCore.QRect(20, 290, 51, 181))
-        self.forward_slider.setMinimum(1350)
-        self.forward_slider.setMaximum(1650)
+        self.forward_slider.setMinimum(1300)
+        self.forward_slider.setMaximum(1700)
         self.forward_slider.setSingleStep(5)
         self.forward_slider.setProperty("value", 1500)
         self.forward_slider.setOrientation(QtCore.Qt.Vertical)
@@ -61,8 +61,8 @@ class Ui_MainWindow(object):
         self.forward_label.setObjectName("forward_label")
         self.yaw_slider = QtWidgets.QSlider(self.centralwidget)
         self.yaw_slider.setGeometry(QtCore.QRect(100, 290, 51, 181))
-        self.yaw_slider.setMinimum(1350)
-        self.yaw_slider.setMaximum(1650)
+        self.yaw_slider.setMinimum(1300)
+        self.yaw_slider.setMaximum(1700)
         self.yaw_slider.setSingleStep(5)
         self.yaw_slider.setProperty("value", 1500)
         self.yaw_slider.setOrientation(QtCore.Qt.Vertical)
@@ -73,8 +73,8 @@ class Ui_MainWindow(object):
         self.yaw_label.setObjectName("yaw_label")
         self.lateral_slider = QtWidgets.QSlider(self.centralwidget)
         self.lateral_slider.setGeometry(QtCore.QRect(190, 290, 51, 181))
-        self.lateral_slider.setMinimum(1350)
-        self.lateral_slider.setMaximum(1650)
+        self.lateral_slider.setMinimum(1300)
+        self.lateral_slider.setMaximum(1700)
         self.lateral_slider.setSingleStep(5)
         self.lateral_slider.setProperty("value", 1500)
         self.lateral_slider.setOrientation(QtCore.Qt.Vertical)
@@ -226,7 +226,7 @@ class Controller(Ui_MainWindow):
         self.modey.clicked.connect(self.modey_mode)
 
         self.rc_channels_msg = OverrideRCIn()
-        self.rc_channels_msg.channels = [1500,1500,1500,1500,0,1500,1500,982]
+        self.rc_channels_msg.channels = [1500,1500,1500,1500,0,0,1500,982]
         #indexing of rc channels and corresponding functions
         #[0,1,2,3,4,5,6,7]- indexes
         #[1,2,3,4,5,6,7,8]-actual channels

@@ -51,8 +51,8 @@ class Control_Mavros(object):
         """
         self.view = view
         self.compass_subscriber = rospy.Subscriber("/mavros/global_position/compass_hdg",Float64,self.compass_callback)
-        self.location_X_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_x_callback)
-        self.location_Y_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_y_callback)
+        #self.location_X_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_x_callback)
+        #self.location_Y_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_y_callback)
         self.rc_message = OverrideRCIn()
         self.rc_message.channels = [0,0,0,0,0,0,0,982] #[1500,1500,1500,1500,0,0,1500,982]
         self.RC_Publisher = rospy.Publisher("/mavros/rc/override",OverrideRCIn,queue_size=10)
@@ -321,8 +321,8 @@ class PID(object):
             self.int_error = self.int_error+error
             self.ITerm = self.Ki*self.int_error *delta_time
             # self.ITerm = self.int_error *delta_time
-            if (self.ITerm < -200):
-                self.ITerm = -200
+            if (self.ITerm < -150): 
+                self.ITerm = -150
             elif (self.ITerm > self.windup_guard):
                 self.ITerm = self.windup_guard
             
@@ -332,11 +332,11 @@ class PID(object):
         self.last_time = self.current_time
         self.last_error = error
         self.output = -1*int(self.PTerm+(self.ITerm)+(self.Kd*self.DTerm))
-        if self.output <-200:#changing it here to -100
-            self.output = -200
+        if self.output <-150:#changing it here to -100
+            self.output = -150
         
-        elif self.output>200: #changing it here to 100
-            self.output = 200
+        elif self.output>150: #changing it here to 100
+            self.output = 150
         else:
             self.output = self.output
         self.output = self.dead_band + self.output
