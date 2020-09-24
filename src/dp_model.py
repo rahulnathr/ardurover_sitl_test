@@ -277,7 +277,7 @@ class Control_Mavros(object):
         plt.show()
 
     def animate_sub(self,i):
-        print("Hi I am in animate")
+        # print("Hi I am in animate")
         self.view.compass_axis.clear()
         self.view.compass_axis.plot(self.compass_value_placeholder,label="Compass")
         self.view.compass_axis.plot(self.compass_value_SP_placeholder,label = "SP")
