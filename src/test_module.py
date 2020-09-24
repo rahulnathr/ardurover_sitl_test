@@ -52,7 +52,7 @@ class Ui_MainWindow(object):
         self.forward_slider.setMinimum(1300)
         self.forward_slider.setMaximum(1700)
         self.forward_slider.setSingleStep(5)
-        self.forward_slider.setProperty("value", 1500)
+        self.forward_slider.setProperty("value", 1495)
         self.forward_slider.setOrientation(QtCore.Qt.Vertical)
         self.forward_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.forward_slider.setObjectName("forward_slider")
@@ -64,7 +64,7 @@ class Ui_MainWindow(object):
         self.yaw_slider.setMinimum(1300)
         self.yaw_slider.setMaximum(1700)
         self.yaw_slider.setSingleStep(5)
-        self.yaw_slider.setProperty("value", 1500)
+        self.yaw_slider.setProperty("value", 1495)
         self.yaw_slider.setOrientation(QtCore.Qt.Vertical)
         self.yaw_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.yaw_slider.setObjectName("yaw_slider")
@@ -76,7 +76,7 @@ class Ui_MainWindow(object):
         self.lateral_slider.setMinimum(1300)
         self.lateral_slider.setMaximum(1700)
         self.lateral_slider.setSingleStep(5)
-        self.lateral_slider.setProperty("value", 1500)
+        self.lateral_slider.setProperty("value", 1495)
         self.lateral_slider.setOrientation(QtCore.Qt.Vertical)
         self.lateral_slider.setTickPosition(QtWidgets.QSlider.TicksAbove)
         self.lateral_slider.setObjectName("lateral_slider")
@@ -226,7 +226,7 @@ class Controller(Ui_MainWindow):
         self.modey.clicked.connect(self.modey_mode)
 
         self.rc_channels_msg = OverrideRCIn()
-        self.rc_channels_msg.channels = [1500,1500,1500,1500,0,0,1500,982]
+        self.rc_channels_msg.channels = [1495,1495,1495,1495,0,0,1500,982]
         #indexing of rc channels and corresponding functions
         #[0,1,2,3,4,5,6,7]- indexes
         #[1,2,3,4,5,6,7,8]-actual channels
