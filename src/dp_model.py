@@ -4,6 +4,7 @@ import rospy
 from mavros_msgs.msg import OverrideRCIn
 from std_msgs.msg import Float64 #the message for compass
 from geometry_msgs.msg import PoseStamped #the message for the location data
+from nav_msgs.msg import Odometry #the message type for the global local data into NED
 import numpy as np
 import time
 import math
@@ -51,8 +52,16 @@ class Control_Mavros(object):
         """
         self.view = view
         self.compass_subscriber = rospy.Subscriber("/mavros/global_position/compass_hdg",Float64,self.compass_callback)
-        self.location_X_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_x_callback)
-        self.location_Y_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_y_callback)
+        """
+        # this was the previous fused Kalman filter data which proved to be unreliable. Now we are using 
+        the global gps values as written in the subsequent lines.
+
+        # self.location_X_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_x_callback)
+        # self.location_Y_subscriber = rospy.Subscriber("/mavros/local_position/pose",PoseStamped,self.local_y_callback)
+        """
+        self.location_X_subscriber = rospy.Subscriber("/mavros/global_position/local",Odometry,self.local_x_callback)
+        self.location_Y_subscriber = rospy.Subscriber("/mavros/global_position/local",Odometry,self.local_y_callback)
+                                                                                            
         self.rc_message = OverrideRCIn()
         self.rc_message.channels = [0,0,0,0,0,0,0,982] #[1500,1500,1500,1500,0,0,1500,982]
         self.RC_Publisher = rospy.Publisher("/mavros/rc/override",OverrideRCIn,queue_size=10)
@@ -77,7 +86,7 @@ class Control_Mavros(object):
         self.counter_local_y = 0 #internal counter for local Y
         self.internal_local_x_dp_flag = 0 #internal flag
         self.internal_local_y_dp_flag = 0 #internal flag
-        self.local_x_pwm = 1495
+        self.local_x_pwm = 1495 
         self.local_y_pwm = 1495 
         self.compass_pwm_out = 1495
         """
@@ -136,7 +145,7 @@ class Control_Mavros(object):
             self.function_for_rc_publish(compass_pwm,self.safe_pwm,self.safe_pwm)
             rospy.loginfo("Both OFF")
 
-    def function_for_rc_publish(self,compass_pwm = 1500,local_x_pwm = 1500,local_y_pwm =1500):
+    def function_for_rc_publish(self,compass_pwm = 1495,local_x_pwm = 1495,local_y_pwm =1495):
         """
             In this logic,the local_x and local_y can change based on origin
             set automatically.
@@ -150,9 +159,10 @@ class Control_Mavros(object):
 
     def local_x_callback(self,msg):
 
-        self.local_x_value = msg.pose.position.x # live X coordinate from Mavros
+        # self.local_x_value = msg.pose.position.x # live X coordinate from Mavros
+        self.local_x_value = msg.pose.pose.position.x
         plot_x = round(self.local_x_value,2)
-        plot_y = round(msg.pose.position.y,2)
+        plot_y = round(msg.pose.pose.position.y,2)
         self.counter_local_x = self.counter_local_x + 1 #counter to assess the optimum PWM Delivery
         x_string = "Current X: " + str(round(self.local_x_value,2))
         self.view.local_X_control_current_X.configure(text = x_string)
@@ -192,7 +202,7 @@ class Control_Mavros(object):
             
         else:
             # rospy.loginfo("DP for Local_X turned off,local_x value is %f",self.local_x_value)
-            self.local_x_pwm = 1500
+            self.local_x_pwm = 1495
             # self.publish_limiter(1500,self.local_x_pwm,self.local_y_pwm,
             #             self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)
             
@@ -200,7 +210,7 @@ class Control_Mavros(object):
         
 
     def local_y_callback(self,msg):
-        self.local_y_value = msg.pose.position.y
+        self.local_y_value = msg.pose.pose.position.y
         
         self.counter_local_y = self.counter_local_y + 1
         # rospy.loginfo("Y counter %f",self.counter_local_y)
@@ -238,7 +248,7 @@ class Control_Mavros(object):
             self.publish_limiter(self.compass_pwm_out,self.local_x_pwm,self.local_y_pwm,
                         self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)     
         else:
-            self.local_y_pwm = 1500
+            self.local_y_pwm = 1495
             # self.publish_limiter(1500,self.local_x_pwm,self.local_y_pwm,
             #             self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)
         #     rospy.loginfo("DP for Local_Y turned off,local_y value is %f",self.local_y_value)
@@ -297,7 +307,7 @@ class PID(object):
         self.sample_time = 0.1
         self.current_time = current_time if current_time is not None else time.time()
         self.last_time = self.current_time
-        self.dead_band = 1500
+        self.dead_band = 1495
         self.clear()
 
     def clear(self):
