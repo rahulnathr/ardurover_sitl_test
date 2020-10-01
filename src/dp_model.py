@@ -80,7 +80,7 @@ class Control_Mavros(object):
         self.local_y_value = 0  #placeholder to update the subscribed y values
         self.arm_disarm = rospy.ServiceProxy('/mavros/cmd/arming',mavros_msgs.srv.CommandBool)
         self.animation_main_for_matplot()
-
+        self.dp_margin = 0.01
         """Experimental--almost approved""" 
         self.counter_local_x = 0 #internal counter for local X
         self.counter_local_y = 0 #internal counter for local Y
@@ -124,7 +124,7 @@ class Control_Mavros(object):
             self.publish_limiter(self.compass_pwm_out,self.local_x_pwm,self.local_y_pwm,
                         self.internal_local_x_dp_flag,self.internal_local_y_dp_flag)
         else:
-            self.compass_pwm_out = 1500 #reset to 1500 or natural state.
+            self.compass_pwm_out = 1495 #reset to 1500 or natural state.
             rospy.loginfo("DP for compass is turned Off,Compass value is %f",compass_value)
             # self.function_for_rc_publish(self.safe_pwm,1500,self.safe_pwm)
     
@@ -133,16 +133,16 @@ class Control_Mavros(object):
         int_x_flag = DP_internal_local_x_flag
         int_y_flag = DP_internal_local_y_flag
         if (int_x_flag == 1 and int_y_flag == 0): #x on and y off,publish only x
-            self.function_for_rc_publish(compass_pwm,local_x_pwm,1495)
+            self.function_for_rc_publish(self.compass_pwm_out,local_x_pwm,1495)
             rospy.loginfo("The channels are  X %f and Y %f",local_x_pwm,local_y_pwm)
         elif (int_y_flag == 1 and int_x_flag ==0): #x off and y on,publish only y
-            self.function_for_rc_publish(compass_pwm,1495,local_y_pwm)
+            self.function_for_rc_publish(self.compass_pwm_out,1495,local_y_pwm)
             rospy.loginfo("The channels are  Y %f and X %f",local_y_pwm,local_x_pwm)
         elif (int_x_flag == 1 and int_y_flag == 1):
-            self.function_for_rc_publish(compass_pwm,self.safe_pwm,self.safe_pwm)
+            self.function_for_rc_publish(self.compass_pwm_out,self.safe_pwm,self.safe_pwm)
             rospy.loginfo("Both ON,so cancelling both X and Y")
         else:
-            self.function_for_rc_publish(compass_pwm,self.safe_pwm,self.safe_pwm)
+            self.function_for_rc_publish(self.compass_pwm_out,self.safe_pwm,self.safe_pwm)
             rospy.loginfo("Both OFF")
 
     def function_for_rc_publish(self,compass_pwm = 1495,local_x_pwm = 1495,local_y_pwm =1495):
@@ -186,9 +186,9 @@ class Control_Mavros(object):
                 if less than 0.8 m from current SP, give new value for update
                 else, give current SP  for update.
             """
-            if self.local_x_value > (self.controller.local_x_PID.setPoint + 1):
+            if self.local_x_value > (self.controller.local_x_PID.setPoint + self.dp_margin):
                 self.controller.local_x_PID.update(self.local_x_value,None)
-            elif self.local_x_value < (self.controller.local_x_PID.setPoint - 1):
+            elif self.local_x_value < (self.controller.local_x_PID.setPoint - self.dp_margin):
                 self.controller.local_x_PID.update(self.local_x_value,None)
             else:
                 self.controller.local_x_PID.update(self.controller.local_x_PID.setPoint)
@@ -235,9 +235,9 @@ class Control_Mavros(object):
                 if less than 0.8 m from current SP, give new value for update
                 else, give current SP  for update
             """
-            if self.local_y_value > (self.controller.local_y_PID.setPoint + 1):
+            if self.local_y_value > (self.controller.local_y_PID.setPoint + self.dp_margin):
                 self.controller.local_y_PID.update(self.local_y_value,None)
-            elif self.local_y_value < (self.controller.local_y_PID.setPoint - 1):
+            elif self.local_y_value < (self.controller.local_y_PID.setPoint - self.dp_margin):
                 self.controller.local_y_PID.update(self.local_y_value,None)
             else:
                 self.controller.local_y_PID.update(self.controller.local_y_PID.setPoint)
@@ -307,7 +307,7 @@ class PID(object):
         self.sample_time = 0.1
         self.current_time = current_time if current_time is not None else time.time()
         self.last_time = self.current_time
-        self.dead_band = 1495
+        self.dead_band = 1445
         self.clear()
 
     def clear(self):

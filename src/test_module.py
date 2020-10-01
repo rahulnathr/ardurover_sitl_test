@@ -177,8 +177,8 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "MODE CHANGER"))
         self.manual.setText(_translate("MainWindow", "MANUAL MODE"))
         self.guided.setText(_translate("MainWindow", "GUIDED MODE"))
-        self.modex.setText(_translate("MainWindow", "MODEX-STAB"))
-        self.modey.setText(_translate("MainWindow", "MODEY"))
+        self.modex.setText(_translate("MainWindow", "Relay On"))
+        self.modey.setText(_translate("MainWindow", "Relay Off"))
         self.forward_slider.setToolTip(_translate("MainWindow", "Control throttle"))
         self.forward_label.setText(_translate("MainWindow", "Forward"))
         self.yaw_slider.setToolTip(_translate("MainWindow", "Control yaw"))
@@ -258,9 +258,9 @@ class Controller(Ui_MainWindow):
             print ('Disarm Failed')
 
     def _emergency_fn(self):
-        rospy.wait_for_service('/mavros/cmd/arming')
-        self.arm_disarm(False)
-        self.rc_channels_msg.channels = [1500,1500,1500,1500,1500,1500,1500,1500]
+        #rospy.wait_for_service('/mavros/cmd/arming')
+        #self.arm_disarm(False)
+        self.rc_channels_msg.channels = [1500,1500,1500,1500,0,2006,0,982]
         print('emergency activated')
 
 
@@ -300,15 +300,13 @@ class Controller(Ui_MainWindow):
 
 
     def _modex_mode(self):
-        rospy.wait_for_service('/mavros/set_mode')
-        try:
-            self.flight_mode_changer(custom_mode = 'STABILIZE')
-        except rospy.ServiceException:
-            print (' failed')
+        self.rc_channels_msg.channels = [1500,1500,1500,1500,0,2006,0,982]
+        print('The relay is On')
 
 
     def modey_mode(self):
-        pass 
+       self.rc_channels_msg.channels = [1500,1500,1500,1500,0,0,0,982]
+       print('The relay is off ')
             
 if __name__ == "__main__":
     import sys

@@ -103,6 +103,8 @@ class Controller(object):
     
     def local_x_DP_OFF(self):
         self.mavros_module.DP_local_x_flag = 0
+        sp_text = "SP X:" 
+        self.view.local_X_setpoint_text.configure(text = sp_text)
         self.view.local_X_control_status.configure(text="Status:OFF",fg='red')
     
     """
@@ -135,6 +137,8 @@ class Controller(object):
     
     def local_y_DP_OFF(self):
         self.mavros_module.DP_local_y_flag = 0
+        sp_text = "SP Y:" 
+        self.view.local_Y_setpoint_text.configure(text = sp_text)
         self.view.local_Y_control_status.configure(text="Status:OFF",fg='red')
     
 
@@ -157,11 +161,15 @@ class Controller(object):
         self.mavros_module.DP_compass_flag = 1
         self.mavros_module.DP_local_x_flag = 1
         self.mavros_module.DP_local_y_flag = 1
+        # self.mavros_module.rc_message.channels[1500,1500,1500,1500,0,2006,0,982]
+        
+
     
     def deactivate_all_dp_systems(self):
         self.mavros_module.DP_compass_flag = 0
         self.mavros_module.DP_local_x_flag = 0
         self.mavros_module.DP_local_y_flag = 0
+        # self.mavros_module.rc_message.channels[1500,1500,1500,1500,0,0,0,982]
 
 
     def plotter_function_for_path(self,x,y):

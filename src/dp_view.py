@@ -213,17 +213,17 @@ class View(tk.Tk):
     def create_controller_for_local_X(self):
         #scale for Compass P value
         self.local_X_P = tk.Scale(self.control_frame_localX,orient=tk.HORIZONTAL,
-                                  length=100,from_=0,to=20.0,
+                                  length=100,from_=0,to=50.0,
                                   resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_x_P)
         self.local_X_P.grid(column=0,row=0)
         #scale for Compass I value
         self.local_X_I = tk.Scale(self.control_frame_localX,orient=tk.HORIZONTAL,
-                                  length=100,from_=0,to=20.0,
+                                  length=100,from_=0,to=50.0,
                                   resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_x_I)
         self.local_X_I.grid(column=0,row=1)
         #scale for Compass D value
         self.local_X_D = tk.Scale(self.control_frame_localX,orient=tk.HORIZONTAL,
-                                  length=100,from_=0,to=20.0,
+                                  length=100,from_=0,to=50.0,
                                   resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_x_D)
         self.local_X_D.grid(column=0,row=2)
 
@@ -266,17 +266,17 @@ class View(tk.Tk):
     def create_controller_for_local_Y(self):
         #scale for Compass P value
         self.local_Y_P = tk.Scale(self.control_frame_localY,orient=tk.HORIZONTAL,
-                                  length=100,from_=0,to=20.0,
+                                  length=100,from_=0,to=50.0,
                                   resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_y_P)
         self.local_Y_P.grid(column=0,row=0)
         #scale for Compass I value
         self.local_Y_I = tk.Scale(self.control_frame_localY,orient=tk.HORIZONTAL,
-                                  length=100,from_=0,to=20.0,
+                                  length=100,from_=0,to=50.0,
                                   resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_y_I)
         self.local_Y_I.grid(column=0,row=1)
         #scale for Compass D value
         self.local_Y_D = tk.Scale(self.control_frame_localY,orient=tk.HORIZONTAL,
-                                  length=100,from_=0,to=20.0,
+                                  length=100,from_=0,to=50.0,
                                   resolution = 0.1,bg='black',fg='white',command = self.controller.change_local_y_D)
         self.local_Y_D.grid(column=0,row=2)
 
