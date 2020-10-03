@@ -226,7 +226,7 @@ class Controller(Ui_MainWindow):
         self.modey.clicked.connect(self.modey_mode)
 
         self.rc_channels_msg = OverrideRCIn()
-        self.rc_channels_msg.channels = [1495,1495,1495,1495,0,0,1500,982]
+        self.rc_channels_msg.channels = [1495,0,1495,1495,0,0,0,982]
         #indexing of rc channels and corresponding functions
         #[0,1,2,3,4,5,6,7]- indexes
         #[1,2,3,4,5,6,7,8]-actual channels
@@ -260,7 +260,7 @@ class Controller(Ui_MainWindow):
     def _emergency_fn(self):
         #rospy.wait_for_service('/mavros/cmd/arming')
         #self.arm_disarm(False)
-        self.rc_channels_msg.channels = [1500,1500,1500,1500,0,2006,0,982]
+        self.rc_channels_msg.channels = [1500,0,1500,1500,0,0,0,982]
         print('emergency activated')
 
 
@@ -277,7 +277,7 @@ class Controller(Ui_MainWindow):
     
     def _lateral_change(self):        
         self.lateral_rc = self.lateral_slider.value()
-        self.rc_channels_msg.channels[1] = self.lateral_rc
+        # self.rc_channels_msg.channels[1] = self.lateral_rc
         self.rc_channels_msg.channels[3] = self.lateral_rc        
 
     def _publisher(self,msg_to_send):
@@ -300,12 +300,12 @@ class Controller(Ui_MainWindow):
 
 
     def _modex_mode(self):
-        self.rc_channels_msg.channels = [1500,1500,1500,1500,0,2006,0,982]
+        self.rc_channels_msg.channels = [1500,0,1500,1500,0,0,0,982]
         print('The relay is On')
 
 
     def modey_mode(self):
-       self.rc_channels_msg.channels = [1500,1500,1500,1500,0,0,0,982]
+       self.rc_channels_msg.channels = [1500,0,1500,1500,0,0,0,982]
        print('The relay is off ')
             
 if __name__ == "__main__":
