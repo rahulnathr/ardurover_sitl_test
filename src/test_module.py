@@ -265,7 +265,14 @@ class Controller(Ui_MainWindow):
 
 
     def _fwd_speed(self):
-        self.fwd_rc = self.forward_slider.value()
+        val = self.forward_slider.value()
+        # if val>1500:
+        #     self.fwd_rc = val+50
+        # elif val<1500:
+        #     self.fwd_rc = val-50
+        # else:
+        #     self.fwd_rc = self.forward_slider.value()
+        self.fwd_rc = val
         self.rc_channels_msg.channels[2] = self.fwd_rc
 
 
