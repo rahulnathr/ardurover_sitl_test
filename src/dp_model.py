@@ -69,6 +69,8 @@ class Control_Mavros(object):
         self.DP_local_x_flag = 0 #flag to turn on/off local_x_dp,main flag
         self.DP_local_y_flag = 0 #flag to turn on/off local_y_dp,main flag
         self.safe_pwm = 1495
+        self.highband = 1550
+        self.lowband = 1440
         self.controller = controller #passing the controler object
         self.compass_value_placeholder = []
         self.compass_value_SP_placeholder = []
@@ -204,9 +206,16 @@ class Control_Mavros(object):
             print("local_x_works")     
             # self.function_for_rc_publish(self.safe_pwm,local_x_pwm_out,self.safe_pwm)
             print("THe localXPWM value is %f",self.local_x_pwm)
-            if self.local_x_pwm > self.safe_pwm:
+            # if self.local_x_pwm > self.safe_pwm:
+            #     self.local_x_pwm = self.local_x_pwm + 50
+            # elif self.local_x_pwm < self.safe_pwm:
+            #     self.local_x_pwm = self.local_x_pwm - 50
+            # else:
+            #     self.local_x_pwm = self.local_x_pwm
+
+            if self.local_x_pwm in range(self.safe_pwm+1,self.highband+1):
                 self.local_x_pwm = self.local_x_pwm + 50
-            elif self.local_x_pwm < self.safe_pwm:
+            elif self.local_x_pwm in range(self.lowband,self.safe_pwm):
                 self.local_x_pwm = self.local_x_pwm - 50
             else:
                 self.local_x_pwm = self.local_x_pwm
@@ -256,9 +265,15 @@ class Control_Mavros(object):
                 self.controller.local_y_PID.update(self.controller.local_y_PID.setPoint)
             
             self.local_y_pwm = self.controller.local_y_PID.output   #add controller out here
-            if self.local_y_pwm > self.safe_pwm:
+            # if self.local_y_pwm > self.safe_pwm:
+            #     self.local_y_pwm = self.local_y_pwm + 50
+            # elif self.local_y_pwm < self.safe_pwm:
+            #     self.local_y_pwm = self.local_y_pwm - 50
+            # else:
+            #     self.local_y_pwm = self.local_y_pwm
+            if self.local_y_pwm in range(self.safe_pwm+1,self.highband+1):
                 self.local_y_pwm = self.local_y_pwm + 50
-            elif self.local_y_pwm < self.safe_pwm:
+            elif self.local_y_pwm in range(self.lowband,self.safe_pwm):
                 self.local_y_pwm = self.local_y_pwm - 50
             else:
                 self.local_y_pwm = self.local_y_pwm
